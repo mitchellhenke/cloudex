@@ -55,6 +55,12 @@ defmodule Cloudex do
     |> Task.await(60_000)
   end
 
+  def resource(item, opts \\ []) do
+    Cloudex.CloudinaryApi
+    |> Task.async(:resource, [item, opts])
+    |> Task.await(60_000)
+  end
+
   @doc """
   Deletes a prefix
   """

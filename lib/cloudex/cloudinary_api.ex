@@ -80,6 +80,16 @@ defmodule Cloudex.CloudinaryApi do
     struct(%Cloudex.UploadedImage{}, converted)
   end
 
+  def resource(item, opts \\ []) do
+    resource_type = Keyword.get(opts, :resource_type, "image")
+    type = Keyword.get(opts, :type, "upload")
+    url = "#{@base_url}#{Cloudex.Settings.get(:cloud_name)}/resources/#{resource_type}/#{type}/#{item}"
+
+    with {:ok, raw_response} <- HTTPoison.get(url, @cloudinary_headers, credentials()),
+         {:ok, response} <- @json_library.decode(raw_response.body),
+         do: handle_response(response, nil)
+  end
+
   @spec upload_file(String.t(), map) :: {:ok, %Cloudex.UploadedImage{}} | {:error, any}
   defp upload_file(file_path, opts) do
     options =
@@ -153,6 +163,9 @@ defmodule Cloudex.CloudinaryApi do
          do: handle_response(response, source)
   end
 
+  def get(body, opts) do
+    HTTPoison.request(:post, url_for(opts), body, @cloudinary_headers, credentials())
+  end
 
   defp common_post(body, opts) do
     HTTPoison.request(:post, url_for(opts), body, @cloudinary_headers, credentials())
